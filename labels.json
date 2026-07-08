@@ -1,0 +1,41 @@
+{
+  "categories": {
+    "calculator": {
+      "display_name": "Mark jay",
+      "image": "scical.png"
+    },
+    "projector": {
+      "display_name": "Kristal Shane",
+      "image": "proj.png"
+    },
+    "extension": {
+      "display_name": "Dave",
+      "image": "ext.png"
+    },
+    "hdmi": {
+      "display_name": "Kevin",
+      "image": "hdmi.png"
+    }
+  },
+  "items": {
+    "Calculator 1": "Mark jay 1",
+    "Calculator 2": "Mark Jay 2",
+    "Calculator 3": "Mark Jay 3",
+    "Calculator 4": "Mark Jay 4",
+    "Calculator 5": "Calculator 5",
+    "Calculator 6": "Calculator 6",
+    "Calculator 7": "Calculator 7",
+    "Projector 1": "Kristal 1",
+    "Projector 2": "kristal",
+    "Projector 3": "Projector 3",
+    "Projector 4": "Kristal 4",
+    "Extension 1": "Extension 1",
+    "Extension 2": "Extension 2",
+    "Extension 3": "Extension 3",
+    "Extension 4": "Extension 4",
+    "HDMI 1": "Kevincofal",
+    "HDMI 2": "HDMI 2",
+    "HDMI 3": "HDMI 3",
+    "HDMI 4": "HDMI 4"
+  }
+}
