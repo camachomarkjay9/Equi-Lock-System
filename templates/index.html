@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EquiLock Kiosk</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@900&display=swap" rel="stylesheet" />
+    <style>
+        
+        
+        html,
+        body {
+            touch-action: pan-y;
+            -webkit-overflow-scrolling: touch;
+            cursor: default;
+        }
+        
+        
+        #scanPopupTitle.hello-greeting {
+            font-family: 'Raleway', sans-serif;
+            font-size: clamp(22px, 3.5vw, 36px);
+            font-weight: 900;
+            background: linear-gradient(135deg, #343C98, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 3px;
+            margin-bottom: 2px;
+            animation: helloFadeIn 0.6s ease;
+        }
+        
+        
+        #scanIDPopup .popup-content {
+            transition: max-width 0.35s ease, width 0.35s ease;
+        }
+        
+        #scanIDPopup .popup-content.popup-verified {
+            max-width: 680px;
+            width: 92%;
+        }
+        
+        
+        #scanIDPopup .popup-content:not(.popup-verified) {
+            max-width: 450px;
+            width: 90%;
+        }
+        
+        @keyframes helloFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        
+        #custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 2px;
+            height: 2px;
+            border-radius: 5%;
+            pointer-events: none;
+            z-index: 999999;
+            transform: translate(-50%, -50%);
+            background: rgba(4, 4, 192, 0.87);
+            border: 1px solid #ffffff00;
+            backdrop-filter: none;
+            filter: none;
+            opacity: 1;
+            
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        
+        #custom-cursor.active {
+            background: rgba(56, 189, 248, 0.35);
+            border-color: #38bdf8;
+            filter: none;
+            opacity: 1;
+            
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+        
+        
+        
+        .about-btn.auto-hover,
+        .tutorial-btn.auto-hover {
+            width: auto !important;
+            border-radius: 20px !important;
+            padding: 0 14px 0 10px !important;
+            gap: 7px;
+            white-space: nowrap;
+            overflow: visible;
+            background: #2a3180 !important;
+            box-shadow: 0 4px 20px rgba(52, 60, 152, 0.7), 0 0 0 3px rgba(125, 211, 252, 0.4) !important;
+            transform: scale(1.08) !important;
+            transition: width 0.35s ease, border-radius 0.35s ease, padding 0.35s ease, background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease !important;
+        }
+        
+        
+        .about-btn .auto-label,
+        .tutorial-btn .auto-label {
+            display: inline-block;
+            max-width: 0;
+            opacity: 0;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+            white-space: nowrap;
+            vertical-align: middle;
+            transition: max-width 0.4s ease, opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .about-btn.auto-hover .auto-label,
+        .tutorial-btn.auto-hover .auto-label {
+            max-width: 160px;
+            opacity: 1;
+        }
+        
+        
+        .calculator-page .items-scroll-wrapper .item,
+        .projector-page .item,
+        .extension-page .item,
+        .hdmi-page .item {
+            top: 250px !important;
+            overflow: visible !important;
+        }
+        
+        
+        .calculator-page .items-scroll-wrapper .item .item-box,
+        .projector-page .item .item-box,
+        .extension-page .item .item-box,
+        .hdmi-page .item .item-box {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 18px !important;
+            transform: none !important;
+            overflow: hidden;
+        }
+        
+        
+        .calculator-page .items-scroll-wrapper .item .item-box img,
+        .projector-page .item .item-box img,
+        .extension-page .item .item-box img,
+        .hdmi-page .item .item-box img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            margin-top: 0 !important;
+            position: static !important;
+            transform: none !important;
+            display: block;
+        }
+        
+        
+        .calculator-page .items-scroll-wrapper .item .item-name,
+        .projector-page .item .item-name,
+        .extension-page .item .item-name,
+        .hdmi-page .item .item-name {
+            position: absolute !important;
+            bottom: -34px !important;
+            left: 0 !important;
+            width: 100% !important;
+            text-align: center;
+            font-size: clamp(13px, 1.3vw, 17px) !important;
+            font-weight: 700 !important;
+            color: black !important;
+            z-index: 5;
+        }
+        
+        
+        .item.selected {
+            transform: scale(1.12) !important;
+            border: 3px solid #343C98 !important;
+            box-shadow: 0 0 0 4px #343C98, 0 0 30px 8px rgba(56, 189, 248, 0.7) !important;
+        }
+        
+        
+        .item.selected::after {
+            content: "✓";
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            width: 28px;
+            height: 28px;
+            background: #343C98;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 900;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            line-height: 28px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        
+        .item.selected .item-name {
+            color: #343C98 !important;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.9), 0 1px 4px rgba(0, 0, 0, 0.8) !important;
+            font-weight: 900 !important;
+        }
+        
+        
+        .calculator-page .items-scroll-wrapper .item:not(.selected):hover,
+        .projector-page .item:not(.selected):hover,
+        .extension-page .item:not(.selected):hover,
+        .hdmi-page .item:not(.selected):hover {
+            transform: none !important;
+        }
+        
+        
+        .calculator-page .items-scroll-wrapper .item.selected:hover,
+        .projector-page .item.selected:hover,
+        .extension-page .item.selected:hover,
+        .hdmi-page .item.selected:hover {
+            transform: scale(1.12) !important;
+        }
+    </style>
+    <style>
+        
+        
+        .cv-detection-page {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            background: transparent;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+            display: none;
+        }
+        
+        .cv-camera-wrapper {
+            position: absolute;
+            top: 145px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: clamp(340px, 40vw, 520px);
+            height: clamp(240px, 30vw, 390px);
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 0 0 3px rgba(52, 60, 152, 0.5), 0 8px 40px rgba(0, 0, 0, 0.3);
+            background: #000;
+        }
+        
+        #cvVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        #cvCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .cv-scan-frame {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        
+        .cv-scan-corner {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-color: #7dd3fc;
+            border-style: solid;
+            transition: border-color 0.3s ease;
+        }
+        
+        .cv-scan-corner.tl {
+            top: 10px;
+            left: 10px;
+            border-width: 3px 0 0 3px;
+            border-radius: 6px 0 0 0;
+        }
+        
+        .cv-scan-corner.tr {
+            top: 10px;
+            right: 10px;
+            border-width: 3px 3px 0 0;
+            border-radius: 0 6px 0 0;
+        }
+        
+        .cv-scan-corner.bl {
+            bottom: 10px;
+            left: 10px;
+            border-width: 0 0 3px 3px;
+            border-radius: 0 0 0 6px;
+        }
+        
+        .cv-scan-corner.br {
+            bottom: 10px;
+            right: 10px;
+            border-width: 0 3px 3px 0;
+            border-radius: 0 0 6px 0;
+        }
+        
+        .cv-scan-line {
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+            box-shadow: 0 0 8px #38bdf8;
+            animation: cvScanMove 2s linear infinite;
+            top: 10px;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        
+        @keyframes cvScanMove {
+            0% {
+                top: 10px;
+                opacity: 1;
+            }
+            92% {
+                opacity: 1;
+            }
+            100% {
+                top: calc(100% - 12px);
+                opacity: 0;
+            }
+        }
+        
+        
+        .cv-status-card {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.96);
+            border: 2px solid #343C98;
+            border-radius: 18px;
+            padding: 14px 24px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            min-width: 320px;
+            box-shadow: 0 4px 20px rgba(52, 60, 152, 0.15);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            
+            top: calc(145px + clamp(240px, 30vw, 390px) + 18px);
+        }
+        
+        .cv-status-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .cv-status-icon {
+            font-size: 26px;
+            line-height: 1;
+        }
+        
+        .cv-status-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: #343C98;
+        }
+        
+        .cv-detected-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #64748b;
+        }
+        
+        
+        .cv-confirm-bar-wrap {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: clamp(260px, 34vw, 420px);
+            height: 10px;
+            background: rgba(52, 60, 152, 0.12);
+            border-radius: 99px;
+            overflow: hidden;
+            display: none;
+            top: calc(145px + clamp(240px, 30vw, 390px) + 18px + 72px + 14px);
+        }
+        
+        .cv-confirm-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #343C98, #38bdf8);
+            border-radius: 99px;
+            width: 0%;
+            transition: width 0.12s linear;
+        }
+        
+        
+        .cv-state-scanning .cv-scan-corner {
+            border-color: #7dd3fc;
+        }
+        
+        .cv-state-scanning .cv-scan-line {
+            background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+            box-shadow: 0 0 8px #38bdf8;
+            animation: cvScanMove 2s linear infinite;
+        }
+        
+        .cv-state-scanning .cv-status-card {
+            border-color: #343C98;
+        }
+        
+        
+        .cv-state-wrong .cv-scan-corner {
+            border-color: #ef4444;
+        }
+        
+        .cv-state-wrong .cv-scan-line {
+            background: linear-gradient(90deg, transparent, #ef4444, transparent);
+            box-shadow: 0 0 8px #ef4444;
+            animation: cvScanMove 1.2s linear infinite;
+        }
+        
+        .cv-state-wrong .cv-status-card {
+            border-color: #ef4444;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2);
+        }
+        
+        .cv-state-wrong .cv-status-text {
+            color: #dc2626;
+        }
+        
+        
+        .cv-state-detected .cv-scan-corner {
+            border-color: #22c55e;
+        }
+        
+        .cv-state-detected .cv-scan-line {
+            background: linear-gradient(90deg, transparent, #22c55e, transparent);
+            box-shadow: 0 0 12px #22c55e;
+            animation: cvScanMove 0.8s linear infinite;
+        }
+        
+        .cv-state-detected .cv-status-card {
+            border-color: #22c55e;
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.25);
+        }
+        
+        .cv-state-detected .cv-status-text {
+            color: #16a34a;
+        }
+        
+        .cv-state-detected .cv-camera-wrapper {
+            box-shadow: 0 0 0 3px #22c55e, 0 8px 40px rgba(34, 197, 94, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+
+    
+    <video id="screenSaverVideo" autoplay muted loop style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:9999;cursor:pointer;">
+        <source src="/static/video/screensaver.mp4" type="video/mp4">
+    </video>
+
+    
+    <img src="/static/img/logo.png" class="global-logo" id="globalLogo" alt="EquiLock Logo">
+
+    
+    <div class="welcome-container" id="welcomeScreen">
+        <div class="text-section">
+            <h1>WELCOME TO</h1>
+            <h2>EQUILOCK</h2>
+            <p>Make sure you've already signed up with EquiLock.<br>Click START before scanning your ID.</p>
+            <button class="start-btn" onclick="showScanPopup()">START</button>
+        </div>
+
+        <img src="/static/img/bg.png" class="polygon-image" alt="">
+        <img src="/static/img/icon.png" class="polygon-icon" alt="">
+        <div class="fog-layer"></div>
+
+        
+        <div class="about-btn" id="aboutBtn" onclick="showAboutEquiLock()" title="About EquiLock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span class="auto-label">About EquiLock</span>
+        </div>
+
+        
+        <div class="tutorial-btn" id="tutorialBtn" onclick="showTutorialPopup()" title="Watch Tutorial"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg><span class="auto-label">Tutorial</span></div>
+
+        
+        <div id="tutorialChoicePopup">
+            <div class="tutorial-choice-content">
+                <h2>Watch a Tutorial</h2>
+                <p>Choose what you'd like to learn:</p>
+                <div class="tutorial-cards">
+                    <div class="tutorial-card" onclick="playTutorial('borrow')">
+                        <div class="tutorial-card-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        </div>
+                        <span>How to Borrow</span>
+                    </div>
+                    <div class="tutorial-card" onclick="playTutorial('return')">
+                        <div class="tutorial-card-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.27"/></svg>
+                        </div>
+                        <span>How to Return</span>
+                    </div>
+                </div>
+                <button class="tutorial-close-btn" onclick="closeTutorialPopup()">Cancel</button>
+            </div>
+        </div>
+
+        
+        <div id="tutorialVideoPopup">
+            <div class="tutorial-video-content">
+                <div class="tutorial-video-header">
+                    <button class="tutorial-back-btn" onclick="closeTutorialVideo()">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                        Back
+                    </button>
+                    <span id="tutorialVideoTitle"></span>
+                </div>
+                <video id="tutorialVideo" controls playsinline>
+                    <source id="tutorialVideoSrc" src="" type="video/mp4">
+                </video>
+            </div>
+        </div>
+
+        
+        <div id="aboutEquiLockPopup">
+            <div class="popup-content">
+                
+                <div class="about-tabs">
+                    <button class="about-tab-btn active" id="tabAbout" onclick="switchAboutTab('about')">About EquiLock</button>
+                    <button class="about-tab-btn" id="tabDev" onclick="switchAboutTab('dev')">About Developer</button>
+                </div>
+
+                
+                <div class="about-tab-content" id="tabContentAbout">
+                    <h2>About EquiLock</h2>
+                    <ol>
+                        <li>You must register with EquiLock using the QR code before using the kiosk.</li>
+                        <li>We record your name, email and ID for security only. This information will not be shared.</li>
+                        <li>If you borrow damaged equipment, report it on the Condition Page and alert the admin. If no admin is present, return it immediately.</li>
+                        <li>If you damage any equipment, submit a report and notify the admin right away.</li>
+                        <li>If you finish using the equipment early, return it immediately. Do not let anyone else borrow it, as the record is in your name. You will be responsible for any damage.</li>
+                        <li>Use all borrowed equipment responsibly and handle with care.</li>
+                        <li>Return equipment on or before 4 hours. Late returns will result in a 1-week ban from using the kiosk.</li>
+                    </ol>
+                </div>
+
+                
+                <div class="about-tab-content" id="tabContentDev" style="display:none;">
+                    <h2>Meet the Developers</h2>
+                    <div class="dev-grid">
+                        <div class="dev-card" onclick="showDevProfile({name:'Camacho, Mark Jay A.',role:'System Architech',roleDesc:'Full-stack development, hardware design, and system integration.',course:'BS Computer Engineering',contacts:'0970-856-1272\ncamachomarkjay2@gmail.com',img:'/static/img/dev1.jpg'})">
+                            <div class="dev-avatar">
+                                <img src="/static/img/dev1.jpg" alt="Camacho, Mark Jay A." onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                <div class="dev-avatar-placeholder" style="display:none;"></div>
+                            </div>
+                            <div class="dev-name">Camacho, Mark Jay A.</div>
+                            <div class="dev-role">System Architech</div>
+                        </div>
+                        <div class="dev-card" onclick="showDevProfile({name:'De Castro, Kristal Shane L.',role:'UI/UX Designer and Frontend Developer',roleDesc:'UI/UX design, frontend development, and responsive web development.',course:'BS Computer Engineering',contacts:'0966-927-2268\nkristalshanedecastro@gmail.com',img:'/static/img/dev2.jpg'})">
+                            <div class="dev-avatar">
+                                <img src="/static/img/dev2.jpg" alt="De Castro, Kristal Shane L." onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                <div class="dev-avatar-placeholder" style="display:none;"></div>
+                            </div>
+                            <div class="dev-name">De Castro, Kristal Shane L.</div>
+                            <div class="dev-role">UI/UX Designer</div>
+                        </div>
+                        <div class="dev-card" onclick="showDevProfile({name:'Llarena, Mark Dave D.C',role:'Hardware Tech',roleDesc:'Hardware assembly, system troubleshooting, and technical support.',course:'BS Computer Engineering',contacts:'0993-784-0068\nllarenadave@gmail.com',img:'/static/img/dev3.jpg'})">
+                            <div class="dev-avatar">
+                                <img src="/static/img/dev3.jpg" alt="Llarena, Mark Dave D.C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                <div class="dev-avatar-placeholder" style="display:none;"></div>
+                            </div>
+                            <div class="dev-name">Llarena, Mark Dave D.C</div>
+                            <div class="dev-role">Hardware Tech</div>
+                        </div>
+                        <div class="dev-card" onclick="showDevProfile({name:'Tenorio, John Kevin L.',role:'Front End Developer',roleDesc:'Frontend development, UI implementation, and performance optimization.',course:'BS Computer Engineering',contacts:'0950-052-6288\njohnkevintenorio8@gmail.com',img:'/static/img/dev4.jpg'})">
+                            <div class="dev-avatar">
+                                <img src="/static/img/dev4.jpg" alt="Tenorio, John Kevin L." onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                <div class="dev-avatar-placeholder" style="display:none;"></div>
+                            </div>
+                            <div class="dev-name">Tenorio, John Kevin L.</div>
+                            <div class="dev-role">Front End Developer</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="close-btn" onclick="closeAboutEquiLock()">Close</button>
+            </div>
+        </div>
+
+        
+        <div id="scanIDPopup">
+            <div class="popup-content">
+                <h2 id="scanPopupTitle">PLEASE SCAN YOUR ID</h2>
+                <div class="display-box">
+                    <span id="scannedID">Waiting for scan...</span>
+                </div>
+                <button id="nextButton">PROCEED</button>
+            </div>
+            <button class="cancel-btn" onclick="closeScanIDPopup()">Cancel</button>
+        </div>
+    </div>
+
+    
+    <div class="menu-container" id="menuScreen">
+        <div class="menu-header" id="menuHeader">WELCOME, </div>
+
+        <div class="header-bar">
+            <div>What do you want to do?</div>
+        </div>
+
+        <div class="menu-box borrow-box" onclick="showBorrow()">
+            <div class="icon-box">
+                <img src="/static/img/borrow.png" alt="Borrow">
+            </div>
+            <div class="menu-label">
+                <span>BORROW</span>
+                <span>EQUIPMENT</span>
+            </div>
+        </div>
+
+        <div class="menu-box return-box" onclick="showReturn()">
+            <div class="icon-box">
+                <img src="/static/img/return.png" alt="Return">
+            </div>
+            <div class="menu-label">
+                <span>RETURN</span>
+                <span>EQUIPMENT</span>
+            </div>
+        </div>
+
+        <button class="cancel-menu-btn" onclick="cancelToWelcome()" style="color: red;">SIGN OUT</button>
+    </div>
+
+    
+    <div class="borrow-page" id="borrowPage">
+        <div class="header-borrow">
+            <div>WHAT DO YOU WANT TO BORROW?</div>
+        </div>
+
+        <div class="item calc" onclick="showCalculator()" data-cat-key="calculator">
+            <img src="/static/img/scical.png" alt="Calculator" data-cat-img="calculator">
+            <div class="item-name" data-cat-name="calculator">Calculator</div>
+        </div>
+        <div class="item proj" onclick="showProjector()" data-cat-key="projector">
+            <img src="/static/img/proj.png" alt="Projector" data-cat-img="projector">
+            <div class="item-name" data-cat-name="projector">Projector</div>
+        </div>
+        <div class="item ext" onclick="showExtension()" data-cat-key="extension">
+            <img src="/static/img/ext.png" alt="Extension" data-cat-img="extension">
+            <div class="item-name" data-cat-name="extension">Extension Cord</div>
+        </div>
+        <div class="item hdmi" onclick="showHDMI()" data-cat-key="hdmi">
+            <img src="/static/img/hdmi.png" alt="HDMI" data-cat-img="hdmi">
+            <div class="item-name" data-cat-name="hdmi">HDMI Cable</div>
+        </div>
+
+        <div class="back-btn" onclick="goBackFromBorrow()">BACK</div>
+    </div>
+
+    
+    <div class="calculator-page" id="calculatorPage">
+        <div class="header-calculator">
+            <div>SELECT A CALCULATOR</div>
+        </div>
+
+        <div class="items-scroll-wrapper" id="calcScrollWrapper">
+            <div class="items-scroll-track" id="calcScrollTrack">
+                <div class="item" onclick="selectItem(this)" data-item-key="Calculator 1">
+                    <div class="item-box"><img src="/static/img/scical1.jpg" style="margin-top:-20px;" alt=""></div>
+                    <div class="item-name">Calculator 1</div>
+                </div>
+                <div class="item" onclick="selectItem(this)" data-item-key="Calculator 2">
+                    <div class="item-box"><img src="/static/img/scical2.jpg" style="margin-top:-20px;" alt=""></div>
+                    <div class="item-name">Calculator 2</div>
+                </div>
+                <div class="item" onclick="selectItem(this)" data-item-key="Calculator 3">
+                    <div class="item-box"><img src="/static/img/scical3.jpg" style="margin-top:-20px;" alt=""></div>
+                    <div class="item-name">Calculator 3</div>
+                </div>
+                <div class="item" onclick="selectItem(this)" data-item-key="Calculator 4">
+                    <div class="item-box"><img src="/static/img/scical4.jpg" style="margin-top:-20px;" alt=""></div>
+                    <div class="item-name">Calculator 4</div>
+                </div>
+                <div class="item" onclick="selectItem(this)" data-item-key="Calculator 5">
+                    <div class="item-box"><img src="/static/img/scical5.jpg" style="margin-top:-20px;" alt=""></div>
+                    <div class="item-name">Calculator 5</div>
+                </div>
+                <div class="item" onclick="selectItem(this)" data-item-key="Calculator 6">
+                    <div class="item-box"><img src="/static/img/scical6.jpg" style="margin-top:-20px;" alt=""></div>
+                    <div class="item-name">Calculator 6</div>
+                </div>
+                <div class="item" onclick="selectItem(this)" data-item-key="Calculator 7">
+                    <div class="item-box"><img src="/static/img/scical7.jpg" style="margin-top:-20px;" alt=""></div>
+                    <div class="item-name">Calculator 7</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="confirm-btn">CONFIRM</div>
+        <div class="back-btn" onclick="goBackFromCalculator()">BACK</div>
+    </div>
+
+    
+    <div class="projector-page" id="projectorPage">
+        <div class="header-projector">
+            <div>SELECT A PROJECTOR</div>
+        </div>
+
+        <div class="item" onclick="selectItem(this)" style="left:145.5px;" data-item-key="Projector 1">
+            <div class="item-box"><img src="/static/img/projector1.jpg" style="margin-top:-20px;" alt=""></div>
+            <div class="item-name">Projector 1</div>
+        </div>
+        <div class="item" onclick="selectItem(this)" style="left:401.5px;" data-item-key="Projector 2">
+            <div class="item-box"><img src="/static/img/projector2.jpg" style="margin-top:-20px;" alt=""></div>
+            <div class="item-name">Projector 2</div>
+        </div>
+        <div class="item" onclick="selectItem(this)" style="left:647.5px;" data-item-key="Projector 3">
+            <div class="item-box"><img src="/static/img/projector3.jpg" style="margin-top:-20px;" alt=""></div>
+            <div class="item-name">Projector 3</div>
+        </div>
+        <div class="item" onclick="selectItem(this)" style="left:893.5px;" data-item-key="Projector 4">
+            <div class="item-box"><img src="/static/img/projector4.jpg" style="margin-top:-20px;" alt=""></div>
+            <div class="item-name">Projector 4</div>
+        </div>
+
+        <div class="confirm-btn">CONFIRM</div>
+        <div class="back-btn" onclick="goBackFromProjector()">BACK</div>
+    </div>
+
+    
+    <div class="extension-page" id="extensionPage">
+        <div class="header-projector">
+            <div>SELECT AN EXTENSION CORD</div>
+        </div>
+
+        <div class="item" onclick="selectItem(this)" style="left:145.5px;" data-item-key="Extension 1">
+            <div class="item-box"><img src="/static/img/ext1.jpg" style="margin-top:-20px;" alt=""></div>
+            <div class="item-name">Extension 1</div>
+        </div>
+        <div class="item" onclick="selectItem(this)" style="left:401.5px;" data-item-key="Extension 2">
+            <div class="item-box"><img src="/static/img/ext2.jpg" style="margin-top:-20px;" alt=""></div>
+            <div class="item-name">Extension 2</div>
+        </div>
+        <div class="item" onclick="selectItem(this)" style="left:647.5px;" data-item-key="Extension 3">
+            <div class="item-box"><img src="/static/img/ext3.jpg" style="margin-top:-20px;" alt=""></div>
+            <div class="item-name">Extension 3</div>
+        </div>
+        <div class="item" onclick="selectItem(this)" style="left:893.5px;" data-item-key="Extension 4">
+            <div class="item-box"><img src="/static/img/ext4.jpg" style="margin-top:-20px;" alt=""></div>
+            <div class="item-name">Extension 4</div>
+        </div>
+
+        <div class="confirm-btn">CONFIRM</div>
+        <div class="back-btn" onclick="goBackFromExtension()">BACK</div>
+    </div>
+
+    
+    <div class="hdmi-page" id="hdmiPage">
+        <div class="header-projector">
+            <div>SELECT AN HDMI CABLE</div>
+        </div>
+
+        <div class="item" onclick="selectItem(this)" style="left:145.5px;" data-item-key="HDMI 1">
+            <div class="item-box"><img src="/static/img/HDMI1.jpg" style="margin-top:-20px;" alt=""></div>
+            <div class="item-name">HDMI 1</div>
+        </div>
+        <div class="item" onclick="selectItem(this)" style="left:401.5px;" data-item-key="HDMI 2">
+            <div class="item-box"><img src="/static/img/HDMI2.jpg" style="margin-top:-20px;" alt=""></div>
+            <div class="item-name">HDMI 2</div>
+        </div>
+        <div class="item" onclick="selectItem(this)" style="left:647.5px;" data-item-key="HDMI 3">
+            <div class="item-box"><img src="/static/img/HDMI3.jpg" style="margin-top:-20px;" alt=""></div>
+            <div class="item-name">HDMI 3</div>
+        </div>
+        <div class="item" onclick="selectItem(this)" style="left:893.5px;" data-item-key="HDMI 4">
+            <div class="item-box"><img src="/static/img/HDMI4.jpg" style="margin-top:-20px;" alt=""></div>
+            <div class="item-name">HDMI 4</div>
+        </div>
+
+        <div class="confirm-btn">CONFIRM</div>
+        <div class="back-btn" onclick="goBackFromHDMI()">BACK</div>
+    </div>
+
+    
+    <div class="return-scan-page" id="returnScanPage">
+        <div class="header-bar">
+            <div>PLEASE SCAN THE EQUIPMENT CODE</div>
+        </div>
+
+        <div class="scan-box">
+            <div id="scannedEquipment">Waiting for scan...</div>
+        </div>
+
+        <button id="returnNextButton" class="returnNext-btn">Next</button>
+        <button class="cancel-return-btn" onclick="cancelToBorrow()">Cancel</button>
+    </div>
+
+    
+    <div class="cv-detection-page cv-state-scanning" id="cvDetectionPage">
+        
+        <div class="header-bar" style="position:absolute; top:85px; left:50%; transform:translateX(-50%);">
+            <div id="cvHeaderText">PLACE ITEM IN FRONT OF CAMERA</div>
+        </div>
+
+        
+        <div class="cv-camera-wrapper" id="cvCameraWrapper">
+            <video id="cvVideo" autoplay muted playsinline></video>
+            <canvas id="cvCanvas"></canvas>
+            <div class="cv-scan-frame">
+                <div class="cv-scan-corner tl"></div>
+                <div class="cv-scan-corner tr"></div>
+                <div class="cv-scan-corner bl"></div>
+                <div class="cv-scan-corner br"></div>
+                <div class="cv-scan-line"></div>
+            </div>
+        </div>
+
+        
+        <div class="cv-status-card" id="cvStatusCard">
+            <div class="cv-status-row">
+                <div class="cv-status-icon" id="cvStatusIcon">🔍</div>
+                <div class="cv-status-text" id="cvStatusText">Starting camera…</div>
+            </div>
+            <div class="cv-detected-label" id="cvDetectedLabel"></div>
+        </div>
+
+        
+        <div class="cv-confirm-bar-wrap" id="cvConfirmBarWrap">
+            <div class="cv-confirm-bar" id="cvConfirmBar"></div>
+        </div>
+
+        <button class="cancel-return-btn" id="cvCancelBtn">Cancel</button>
+    </div>
+
+    
+    <div class="wait-page" id="returnWaitPage" style="display:none;">
+
+        <div class="loader" id="returnLoader" style="position:absolute;top:240px;left:50%;transform:translateX(-50%) scale(1.6);z-index:40;"></div>
+
+        <div class="success-check" id="returnSuccessCheck" style="display: none; position:absolute; top:240px; left:50%; transform:translateX(-50%) scale(1.6); z-index:41;">
+            <div class="check-circle-blue">
+                <div class="checkmark-blue">✓</div>
+            </div>
+        </div>
+
+        <div class="wait-message" id="returnWaitMessage">Vault is opening, please wait.</div>
+        <div id="returnCountdownTimer" class="countdown-timer"></div>
+        <button id="returnWaitNextButton" class="returnWaitNext-btn">Next</button>
+    </div>
+
+    
+    <div class="wait-page" id="waitPage">
+        <div class="loader" id="borrowLoader" style="position:absolute;top:240px;left:50%;transform:translateX(-50%) scale(1.6);z-index:40;"></div>
+
+        <div id="borrowSuccessIcon" class="success-check" style="display: none; position:absolute; top:240px; left:50%; transform:translateX(-50%) scale(1.6); z-index:41;">
+            <div class="check-circle-blue">
+                <div class="checkmark-blue">✓</div>
+            </div>
+        </div>
+
+        <div class="wait-message" id="waitMessageText">Vault is opening, please wait.</div>
+
+        <div id="countdownTimer" class="countdown-timer"></div>
+
+        <button id="waitNextButton" onclick="showConditionPage()" style="display:none;">Next</button>
+    </div>
+
+    
+    <div class="condition-page" id="conditionPage" style="display: block;"> <img src="/static/img/logo.png" class="global-logo" alt="Logo">
+
+        <div class="condition-container">
+            <div class="header">Is the equipment in good condition?</div>
+
+            <div class="buttons">
+                <div class="button yes-btn" id="yesBtn">
+                    <svg width="85" height="85" viewBox="0 0 24 24" fill="none" stroke="#343C98" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                    <span>Yes</span>
+                </div>
+
+                <div class="button no-btn" id="noBtn">
+                    <svg width="85" height="85" viewBox="0 0 24 24" fill="none" stroke="#E1EEF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                    <span>No <span class="arrow"></span></span>
+
+                    
+                    <div class="dropdown-content" id="noDropdownBorrow">
+                        <label><input type="checkbox" class="cond-check"> Equipment has physical damage</label>
+                        <label><input type="checkbox" class="cond-check"> Equipment is not working</label>
+                        <label><input type="checkbox" class="cond-check"> No Item inside the vault</label>
+                        <button class="submit-btn" id="submitNoBorrow">Submit</button>
+                    </div>
+
+                    
+                    <div class="dropdown-content" id="noDropdownReturn">
+                        <label><input type="checkbox" class="cond-check"> Equipment has physical damage</label>
+                        <label><input type="checkbox" class="cond-check"> Equipment is not working</label>
+                        <button class="submit-btn" id="submitNoReturn">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <div class="thank-you-container" id="thankYouPage" style="display:none;">
+        <img class="robot" src="/static/img/robot.gif" alt="Cute Robot">
+        <div class="thank-you-text">
+            Thank you for using EquiLock!<br>
+        </div>
+        <div class="return-reminder" id="returnReminder" style="display:none;">
+            ⏰ Please return the item no later than <strong id="returnDeadline"></strong>
+        </div>
+    </div>
+
+    
+    <div class="thank-you-container" id="damageWarningPage" style="display:none;">
+        <div class="damage-warning-box">
+            <div class="damage-warning-title">⚠️ Thank you for your report!</div>
+            <div class="damage-warning-body-text">The admin has been notified about the equipment condition.</div>
+            <div class="damage-warning-action">🔒 Please return the item to the vault immediately.</div>
+            <div class="damage-done-row">
+                <span class="damage-countdown" id="damageCountdown">5</span>
+                <button class="damage-done-btn" id="damageDoneBtn" disabled>Done</button>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="thank-you-container" id="returnDamageWarningPage" style="display:none;">
+        <div class="damage-warning-box">
+            <div class="damage-warning-title">✅ Thank you for your cooperation!</div>
+            <div class="damage-warning-body-text">Your report has been noted. The admin has been notified.</div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+
+    
+    <script>
+        (function applyEquipmentLabels() {
+            fetch('/api/equipment/labels')
+                .then(function(r) {
+                    return r.json();
+                })
+                .then(function(labels) {
+                    var cats = labels.categories || {};
+                    var items = labels.items || {};
+
+                    
+                    document.querySelectorAll('[data-cat-name]').forEach(function(el) {
+                        var key = el.getAttribute('data-cat-name');
+                        if (cats[key] && cats[key].display_name) {
+                            el.textContent = cats[key].display_name;
+                        }
+                    });
+                    document.querySelectorAll('[data-cat-img]').forEach(function(el) {
+                        var key = el.getAttribute('data-cat-img');
+                        if (cats[key] && cats[key].image) {
+                            el.src = '/static/img/' + cats[key].image + '?t=' + Date.now();
+                        }
+                    });
+
+                    
+                    document.querySelectorAll('[data-item-key]').forEach(function(el) {
+                        var key = el.getAttribute('data-item-key');
+                        var display = items[key];
+                        if (display) {
+                            var nameEl = el.querySelector('.item-name');
+                            if (nameEl) nameEl.textContent = display;
+                        }
+                    });
+                })
+                .catch(function(e) {
+                    console.warn('[Labels] Could not load equipment labels:', e);
+                });
+        })();
+
+        
+        
+        (function patchScanDisplay() {
+            var el = document.getElementById('scannedEquipment');
+            if (!el) return;
+            var observer = new MutationObserver(function() {
+                var txt = el.textContent || '';
+                if (txt.toUpperCase().startsWith('MATCH:')) {
+                    observer.disconnect();
+                    el.textContent = '✔ EQUIPMENT MATCHED';
+                    
+                    setTimeout(function() {
+                        observer.observe(el, {
+                            childList: true,
+                            subtree: true,
+                            characterData: true
+                        });
+                    }, 500);
+                }
+            });
+            observer.observe(el, {
+                childList: true,
+                subtree: true,
+                characterData: true
+            });
+        })();
+    </script>
+
+    
+    <script>
+        function switchAboutTab(tab) {
+            document.getElementById('tabContentAbout').style.display = (tab === 'about') ? 'block' : 'none';
+            document.getElementById('tabContentDev').style.display = (tab === 'dev') ? 'block' : 'none';
+            document.getElementById('tabAbout').classList.toggle('active', tab === 'about');
+            document.getElementById('tabDev').classList.toggle('active', tab === 'dev');
+        }
+    </script>
+
+    
+    <script>
+        function showTutorialPopup() {
+            document.getElementById("tutorialChoicePopup").style.display = "flex";
+        }
+
+        function closeTutorialPopup() {
+            document.getElementById("tutorialChoicePopup").style.display = "none";
+        }
+
+        function playTutorial(type) {
+            closeTutorialPopup();
+            var videoEl = document.getElementById("tutorialVideo");
+            var srcEl = document.getElementById("tutorialVideoSrc");
+            var titleEl = document.getElementById("tutorialVideoTitle");
+            if (type === "borrow") {
+                srcEl.src = "/static/video/how-to-borrow.mp4";
+                titleEl.textContent = "How to Borrow";
+            } else {
+                srcEl.src = "/static/video/how-to-return.mp4";
+                titleEl.textContent = "How to Return";
+            }
+            videoEl.load();
+            videoEl.play();
+            document.getElementById("tutorialVideoPopup").style.display = "flex";
+            videoEl.onended = function() {
+                closeTutorialVideo();
+            };
+        }
+
+        function closeTutorialVideo() {
+            var videoEl = document.getElementById("tutorialVideo");
+            videoEl.pause();
+            videoEl.currentTime = 0;
+            document.getElementById("tutorialVideoPopup").style.display = "none";
+        }
+    </script>
+
+    
+    <div id="inactivityPopup" style="display:none;position:fixed;inset:0;z-index:999998;background:rgba(0,0,0,0.5);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:28px;padding:44px 44px 36px;max-width:400px;width:88%;box-shadow:0 12px 60px rgba(52,60,152,0.28);text-align:center;font-family:'Poppins',sans-serif;animation:inactivityPopIn 0.3s ease;">
+
+            <div style="font-size:22px;font-weight:800;color:#343C98;letter-spacing:1px;margin-bottom:8px;">Are you still there?</div>
+            <div style="font-size:15px;color:#64748b;margin-bottom:28px;line-height:1.5;">Your session will reset soon if there's no activity.</div>
+            <button id="inactivityYesBtn" style="background:linear-gradient(135deg,#343C98,#38bdf8);color:#fff;border:none;border-radius:99px;padding:14px 48px;font-size:17px;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;box-shadow:0 4px 18px rgba(52,60,152,0.35);transition:transform 0.15s ease,box-shadow 0.15s ease;"
+                onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(0.96)'" ontouchend="this.style.transform='scale(1)'">
+                Yes, I'm here!
+            </button>
+        </div>
+    </div>
+    <style>
+        @keyframes inactivityPopIn {
+            from {
+                opacity: 0;
+                transform: scale(0.92) translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+    </style>
+
+    
+    <div id="warningOverlay" class="warning-overlay">
+        <div class="warning-content">
+            <div class="warning-icon">⚠️</div>
+            <h2 class="warning-title">TEMPORARY SERVICE INTERRUPTION</h2>
+            <div class="warning-body">
+                <p>We have received a report that equipment at this kiosk may be missing. An administrator has been notified and assistance is on the way.</p>
+                <p><strong>Please wait for assistance.</strong></p>
+                <p>If an administrator does not arrive shortly, please try locating Sir Flaviano Urera for immediate support.</p>
+            </div>
+            <div class="warning-footer">We appreciate your patience.</div>
+        </div>
+    </div>
+
+    
+    <div id="devProfilePopup" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:28px;padding:44px 44px 36px;max-width:520px;width:92%;box-shadow:0 12px 60px rgba(52,60,152,0.24);position:relative;animation:devPopIn 0.3s ease;text-align:center;font-family:'Poppins',sans-serif;">
+            <button onclick="closeDevProfile()" style="position:absolute;top:16px;right:20px;background:none;border:none;font-size:24px;color:#94a3b8;cursor:pointer;line-height:1;">✕</button>
+            <div style="width:110px;height:110px;margin:0 auto 14px;border-radius:14px;overflow:hidden;border:3px solid #343C98;box-shadow:0 4px 18px rgba(52,60,152,0.2);background:#e2e8f0;">
+                <img id="devProfileImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';document.getElementById('devProfileImgFallback').style.display='flex'">
+                <div id="devProfileImgFallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px;background:#e2e8f0;">👤</div>
+            </div>
+            <div id="devProfileRole" style="display:inline-block;background:linear-gradient(135deg,#343C98,#38bdf8);color:#fff;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 18px;border-radius:99px;margin-bottom:8px;"></div>
+            <div id="devProfileRoleDesc" style="font-size:13px;color:#64748b;font-style:italic;margin-bottom:16px;line-height:1.5;padding:0 8px;"></div>
+            <div style="text-align:left;display:flex;flex-direction:column;gap:16px;margin-top:4px;">
+                <div style="display:flex;gap:14px;align-items:flex-start;">
+                    <span style="font-size:22px;flex-shrink:0;margin-top:2px;"></span>
+                    <div>
+                        <div style="font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px;">Name</div>
+                        <div id="devProfileName" style="font-size:18px;font-weight:700;color:#1e293b;"></div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:14px;align-items:flex-start;">
+                    <span style="font-size:22px;flex-shrink:0;margin-top:2px;"></span>
+                    <div>
+                        <div style="font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px;">Course</div>
+                        <div id="devProfileCourse" style="font-size:17px;font-weight:600;color:#334155;"></div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:14px;align-items:flex-start;">
+                    <span style="font-size:22px;flex-shrink:0;margin-top:2px;"></span>
+                    <div>
+                        <div style="font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px;">Contacts</div>
+                        <div id="devProfileContacts" style="font-size:16px;font-weight:500;color:#334155;white-space:pre-line;"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <style>
+        @keyframes devPopIn {
+            from {
+                opacity: 0;
+                transform: scale(0.93) translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .dev-card {
+            cursor: pointer;
+            transition: box-shadow 0.2s ease;
+        }
+        
+        .dev-card:hover {
+            box-shadow: 0 4px 14px rgba(52, 60, 152, 0.14);
+        }
+    </style>
+    <script>
+        function showDevProfile(dev) {
+            var popup = document.getElementById('devProfilePopup');
+            var img = document.getElementById('devProfileImg');
+            var fallback = document.getElementById('devProfileImgFallback');
+            img.src = dev.img || '';
+            img.style.display = 'block';
+            fallback.style.display = 'none';
+            document.getElementById('devProfileName').textContent = dev.name || '—';
+            document.getElementById('devProfileRole').textContent = dev.role || '';
+            document.getElementById('devProfileRoleDesc').textContent = dev.roleDesc || '';
+            document.getElementById('devProfileCourse').textContent = dev.course || '—';
+            document.getElementById('devProfileContacts').textContent = dev.contacts || '—';
+            popup.style.display = 'flex';
+        }
+
+        function closeDevProfile() {
+            document.getElementById('devProfilePopup').style.display = 'none';
+        }
+        document.getElementById('devProfilePopup').addEventListener('click', function(e) {
+            if (e.target === this) closeDevProfile();
+        });
+    </script>
+
+    <div id="custom-cursor"></div>
+    <script>
+        const cursor = document.getElementById('custom-cursor');
+        let blurTimeout;
+
+        
+        
+        function getBodyScale() {
+            const transform = window.getComputedStyle(document.body).transform;
+            if (!transform || transform === 'none') return 1;
+            
+            const match = transform.match(/matrix\(([^,]+)/);
+            return match ? parseFloat(match[1]) : 1;
+        }
+
+        function setCursor(clientX, clientY) {
+            const scale = getBodyScale();
+            
+            cursor.style.left = (clientX / scale) + 'px';
+            cursor.style.top = (clientY / scale) + 'px';
+        }
+
+        
+        document.addEventListener('mousemove', e => {
+            setCursor(e.clientX, e.clientY);
+        });
+
+        
+        document.addEventListener('touchstart', e => {
+            const t = e.touches[0];
+            setCursor(t.clientX, t.clientY);
+            cursor.classList.add('active');
+            clearTimeout(blurTimeout);
+        }, {
+            passive: true
+        });
+
+        document.addEventListener('touchmove', e => {
+            const t = e.touches[0];
+            setCursor(t.clientX, t.clientY);
+        }, {
+            passive: true
+        });
+
+        document.addEventListener('touchend', () => {
+            
+            blurTimeout = setTimeout(() => {
+                cursor.classList.remove('active');
+            }, 600);
+        });
+    </script>
+
+    
+    <script>
+        (function() {
+            const SHOW_MS = 10000; 
+            const HIDE_MS = 10000; 
+            const aboutBtn = document.getElementById('aboutBtn');
+            const tutorialBtn = document.getElementById('tutorialBtn');
+
+            function setExpanded(el, on) {
+                if (on) el.classList.add('auto-hover');
+                else el.classList.remove('auto-hover');
+            }
+
+            function runCycle() {
+                
+                setExpanded(aboutBtn, true);
+                setExpanded(tutorialBtn, true);
+
+                
+                setTimeout(function() {
+                    setExpanded(aboutBtn, false);
+                    setExpanded(tutorialBtn, false);
+
+                    
+                    setTimeout(runCycle, HIDE_MS);
+                }, SHOW_MS);
+            }
+
+            
+            setTimeout(runCycle, 2000);
+        })();
+    </script>
+
+</body>
+
+</html>

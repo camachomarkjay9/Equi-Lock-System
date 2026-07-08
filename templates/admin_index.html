@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EquiLock | Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="/static/admin_index.css">
+</head>
+
+<body class="text-slate-700 overflow-x-hidden">
+
+    
+    <header id="mobile-topbar" class="px-4 py-3 sticky top-0 z-30 items-center justify-between w-full">
+        <button id="mobile-menu-btn" onclick="toggleSidebar()" class="p-2 rounded-lg">
+            <i class="fas fa-bars text-lg"></i>
+        </button>
+        <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg flex items-center justify-center">
+                <img src="/static/admin_pics/logo.png" alt="EquiLock Logo" class="w-auto object-contain" style="height: 1.6rem; opacity: 1;">
+            </div>
+            <h2 class="text-xl font-extrabold tracking-tight">Equi<span>Lock</span></h2>
+        </div>
+        <div class="w-9"></div>
+    </header>
+
+    
+    <div id="sidebar-overlay"></div>
+
+    <div class="flex min-h-screen">
+
+        
+        <aside class="w-72 flex flex-col sticky top-0 h-screen" style="background: linear-gradient(160deg, #1e3a8a 0%, #1d4ed8 60%, #2563eb 100%);">
+            
+            <div class="px-6 pt-7 pb-5">
+                <div class="flex items-center gap-3 mb-5">
+                    
+                    <div class="relative flex-shrink-0">
+                        <img src="/static/admin_pics/logo.png" alt="EquiLock Logo" class="w-auto object-contain" style="height: 2.6rem; opacity: 1;">
+                    </div>
+                    
+                    <div class="flex flex-col leading-none">
+                        <span class="font-extrabold tracking-tight text-white" style="font-size: 1.35rem; letter-spacing: -0.03em; line-height: 1.1;">
+                            Equi<span style="color: #93c5fd;">Lock</span>
+                        </span>
+                        <span class="text-blue-300 font-medium mt-0.5" style="font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase;">Admin Dashboard</span>
+                    </div>
+                </div>
+                
+                <div style="height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.06) 100%); border-radius: 1px;"></div>
+            </div>
+            <nav class="flex-1 px-6 space-y-2" style="margin-top: -4px;">
+                <button onclick="showSection('overview')" id="btn-overview" class="nav-link active w-full flex items-center space-x-3 p-3 rounded-xl transition-all text-left">
+                    <i class="fas fa-chart-pie w-5"></i>
+                    <span class="font-semibold text-sm">Overview</span>
+                </button>
+
+                <button onclick="showSection('transactions'); markAsRead();" id="btn-transactions" class="nav-link w-full flex items-center justify-between p-3 rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 text-left text-slate-400">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-exchange-alt w-5"></i>
+                        <span class="font-semibold text-sm">Transactions</span>
+                    </div>
+                    <span id="notif-badge" class="hidden bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+                </button>
+
+                <button onclick="showSection('reservations')" id="btn-reservations" class="nav-link w-full flex items-center space-x-3 text-slate-400 p-3 rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 text-left">
+                    <i class="fas fa-calendar-alt w-5"></i>
+                    <span class="font-semibold text-sm">Reservations</span>
+                </button>
+
+                <button onclick="showSection('management')" id="btn-management" class="nav-link w-full flex items-center space-x-3 text-slate-400 p-3 rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 text-left">
+                    <i class="fas fa-users-cog w-5"></i>
+                    <span class="font-semibold text-sm">Management</span>
+                </button>
+
+                <button onclick="showSection('settings')" id="btn-settings" class="nav-link w-full flex items-center space-x-3 text-slate-400 p-3 rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 text-left">
+                    <i class="fas fa-cog w-5"></i>
+                    <span class="font-semibold text-sm">Settings</span>
+                </button>
+
+                <button onclick="showSection('admin-accounts')" id="btn-admin-accounts" class="nav-link w-full flex items-center space-x-3 text-slate-400 p-3 rounded-xl transition-all hover:bg-blue-50 hover:text-blue-600 text-left" style="display:none;">
+                    <i class="fas fa-user-shield w-5"></i>
+                    <span class="font-semibold text-sm">Admin Accounts</span>
+                </button>
+            </nav>
+
+            
+            <div class="px-4 pb-6 pt-4 border-t border-white/20 mt-2">
+                <button onclick="openAdminProfileModal()" class="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-white/10 transition-all group mb-2">
+                    <div class="relative flex-shrink-0">
+                        <img id="sidebar-admin-pic" src="/static/admin_default.png" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 40 40\'%3E%3Ccircle cx=\'20\' cy=\'20\' r=\'20\' fill=\'%232563eb\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' dominant-baseline=\'middle\' fill=\'white\' font-size=\'16\' font-family=\'sans-serif\'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E'"
+                            class="w-10 h-10 rounded-full object-cover border-2 border-white/40 shadow-sm">
+                        <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></span>
+                    </div>
+                    <div class="flex-1 min-w-0 text-left">
+                        <p id="sidebar-admin-name" class="text-sm font-bold text-white truncate">Admin</p>
+                        <p id="sidebar-admin-email" class="text-[11px] text-blue-200 truncate">equilockadmin</p>
+                        <p id="sidebar-role-badge" class="text-[10px] font-black uppercase tracking-wider text-blue-200">Admin</p>
+                    </div>
+                    <i class="fas fa-pen text-white/40 text-xs group-hover:text-white/80 transition flex-shrink-0"></i>
+                </button>
+                <button onclick="confirmLogout()" class="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl bg-white/10 hover:bg-red-500/80 transition-all text-white/70 hover:text-white text-sm font-bold">
+                    <i class="fas fa-sign-out-alt text-xs"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        
+        <main class="flex-1 p-10 min-w-0 overflow-x-hidden">
+
+            
+            <div id="section-overview">
+                <div class="flex justify-end">
+                    <select id="timeFilter" onchange="updateDashboard()" class="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="all">All Time</option>
+                    </select>
+                </div>
+
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-8">System Dashboard</h1>
+
+                
+                <div id="reports-alert-section" class="mb-8" style="display:none;">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-2 h-6 bg-red-500 rounded-full"></div>
+                        <h2 class="text-lg font-black text-slate-800 uppercase tracking-wide">Equipment Reports</h2>
+                        <span id="reports-count-badge" class="px-2 py-0.5 bg-red-500 text-white text-xs font-black rounded-full">0</span>
+                    </div>
+                    <div id="reports-cards-container" class="grid grid-cols-1 gap-4"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
+                    <div class="bg-white p-6 rounded-3xl border border-blue-50 shadow-sm">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Visits</p>
+                        <h3 id="stat-visits" class="text-3xl font-black text-slate-800">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-blue-50 shadow-sm border-l-4 border-l-yellow-400">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Borrowed</p>
+                        <h3 id="stat-borrowed" class="text-3xl font-black text-slate-800">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-blue-50 shadow-sm border-l-4 border-l-green-400">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Returned</p>
+                        <h3 id="stat-returned" class="text-3xl font-black text-slate-800">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-blue-50 shadow-sm border-l-4 border-l-red-500">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Overdue</p>
+                        <h3 id="stat-overdue" class="text-3xl font-black text-red-600">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-blue-50 shadow-sm border-l-4 border-l-blue-500">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Users</p>
+                        <h3 id="stat-total-users" class="text-3xl font-black text-blue-600">0</h3>
+                        <p id="stat-users-breakdown" class="text-[10px] text-slate-400 mt-1"></p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-8">
+                    
+                    <div class="space-y-8">
+                        <div class="bg-white p-8 rounded-3xl border border-blue-100 shadow-sm">
+                            <h3 class="text-lg font-bold mb-6 text-slate-800">Usage Trends - Last 10 days</h3>
+                            <div class="h-64"><canvas id="trendsChart"></canvas></div>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl border border-blue-100 shadow-sm">
+                            <h3 class="text-lg font-bold mb-6 text-slate-800">Top Items (All-Time)</h3>
+                            <div id="most-borrowed-list" class="space-y-4"></div>
+                        </div>
+
+                        
+                        <div class="bg-white rounded-3xl border border-blue-100 shadow-sm overflow-hidden">
+                            <div class="flex items-center justify-between px-8 py-5 border-b border-blue-50 bg-slate-50/60">
+                                <h3 class="text-lg font-bold text-slate-800">Recent Transactions</h3>
+                                <button onclick="showSection('transactions')" class="text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl transition">
+                                    View All <i class="fas fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left min-w-[560px]">
+                                    <thead class="bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest">
+                                        <tr>
+                                            <th class="px-6 py-3">Borrower</th>
+                                            <th class="px-6 py-3">Equipment</th>
+                                            <th class="px-6 py-3">Time</th>
+                                            <th class="px-6 py-3">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-transactions-body" class="divide-y divide-slate-50 text-sm">
+                                        <tr>
+                                            <td colspan="4" class="px-6 py-8 text-center text-slate-400 text-xs">Loading...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div id="section-reservations" class="section-hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <h1 class="text-3xl font-extrabold text-slate-900">Reservations</h1>
+                    <h2 id="calendar-month" class="text-lg font-bold text-blue-600"></h2>
+                </div>
+                
+                <div id="calendar-grid-wrapper" class="bg-white p-6 rounded-3xl border border-blue-100 shadow-sm">
+                    <div class="grid grid-cols-7 gap-1 mb-2 text-center text-[10px] font-black uppercase text-slate-400 tracking-widest">
+                        <div>Sun</div>
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+                </div>
+                
+                <div id="calendar-list" class="space-y-3"></div>
+            </div>
+
+            
+            <div id="section-transactions" class="section-hidden">
+                <div class="flex flex-wrap gap-3 justify-between items-center mb-8">
+                    <h1 class="text-3xl font-extrabold text-slate-900">Activity Logs</h1>
+                    <input type="text" id="trx-search" onkeyup="filterRows('trx-search', 'transaction-table-body')" placeholder="Search logs..." class="px-4 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto">
+                </div>
+                <div class="bg-white rounded-3xl border border-blue-100 shadow-sm overflow-x-auto">
+                    <table class="w-full text-left min-w-[700px]">
+                        <thead class="bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest">
+                            <tr>
+                                <th class="px-8 py-4">Borrower</th>
+                                <th class="px-8 py-4">Equipment</th>
+                                <th class="px-8 py-4">Time Borrowed</th>
+                                <th class="px-8 py-4">Time Returned</th>
+                                <th class="px-8 py-4">Duration</th>
+                                <th class="px-8 py-4">Status</th>
+                                <th class="px-8 py-4">Good Condition?</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transaction-table-body" class="divide-y divide-slate-50 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            
+            <div id="section-management" class="section-hidden">
+                <div class="flex flex-wrap gap-3 justify-between items-center mb-8">
+                    <h1 class="text-3xl font-extrabold text-slate-900">User & Equipment
+                        <span id="user-count-badge" class="text-sm font-bold text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full ml-2 align-middle"></span>
+                    </h1>
+                    <div class="flex flex-wrap gap-3 items-center ml-auto">
+                        <select id="course-filter" onchange="applyCourseFilter()" class="px-4 py-2 border border-blue-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white text-slate-600 w-full sm:w-auto">
+                            <option value="">All Courses</option>
+                            <option value="BSABE">BSABE – Biosystems and Agricultural Engineering</option>
+                            <option value="BSME">BSME – Mechanical Engineering</option>
+                            <option value="BSCpE">BSCpE – Computer Engineering</option>
+                            <option value="BSIT">BSIT – Industrial Technology</option>
+                            <option value="Faculty">Faculty</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <input type="text" id="user-search" onkeyup="applyCourseFilter()" placeholder="Search Users (Name, ID, Email)..." class="px-4 py-2 border border-blue-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-64">
+                        <button onclick="openAddModal()" class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition whitespace-nowrap">
+                            <i class="fas fa-user-plus mr-2"></i> Add New User
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl border border-blue-100 shadow-sm mb-10" style="max-height: 600px; display: flex; flex-direction: column;">
+                    <div style="overflow: auto; flex: 1; border-radius: inherit;">
+                        <table class="w-full text-left min-w-[600px]">
+                            <thead class="text-[10px] font-black uppercase text-blue-600 tracking-widest" style="position: sticky; top: 0; z-index: 2; background: white; box-shadow: 0 1px 0 #e0eaff;">
+                                <tr>
+                                    <th class="px-8 py-4">User Details</th>
+                                    <th class="px-8 py-4">ID / Email</th>
+                                    <th class="px-8 py-4">Course / Year</th>
+                                    <th class="px-8 py-4">Status</th>
+                                    <th class="px-8 py-4 text-center">Violation Count</th>
+                                    <th class="px-8 py-4 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-table-body" class="divide-y divide-slate-50"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-blue-100 shadow-sm overflow-x-auto">
+                    <div class="p-6 border-b border-blue-50 flex flex-wrap gap-3 justify-between items-center bg-slate-50/50">
+                        <h3 class="font-bold text-slate-800">Equipment Inventory</h3>
+                    </div>
+                    <table class="w-full text-left min-w-[400px]">
+                        <thead class="bg-white text-[10px] font-black uppercase text-blue-600 tracking-widest">
+                            <tr>
+                                <th class="px-8 py-4">Equipment Name</th>
+                                <th class="px-8 py-4">QR Token</th>
+                                <th class="px-8 py-4">Status</th>
+                                <th class="px-8 py-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="equipment-table-body" class="divide-y divide-slate-50"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            
+            <div id="section-settings" class="section-hidden">
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-8">System Settings</h1>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white p-8 rounded-3xl border border-blue-100 shadow-sm md:col-span-2">
+                        <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center">
+                            <i class="fas fa-tools mr-3 text-blue-600"></i> Maintenance
+                        </h3>
+                        <div class="space-y-4">
+                            <button onclick="exportAllRecords()" class="w-full flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-blue-50 transition group">
+                                <span class="text-sm font-bold">Export All Records (.csv)</span>
+                                <i class="fas fa-download text-slate-400 group-hover:text-blue-600"></i>
+                            </button>
+                            <a href="/api/download-db/transactions" download="transaction.db" class="w-full flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-blue-50 transition group cursor-pointer">
+                                <div>
+                                    <span class="text-sm font-bold block">Download transaction.db</span>
+                                    <span class="text-[11px] text-slate-400">Full SQLite database — transactions & item reports</span>
+                                </div>
+                                <i class="fas fa-database text-slate-400 group-hover:text-blue-600"></i>
+                            </a>
+                            <a href="/api/download-db/users" download="users.db" class="w-full flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-blue-50 transition group cursor-pointer">
+                                <div>
+                                    <span class="text-sm font-bold block">Download users.db</span>
+                                    <span class="text-[11px] text-slate-400">Full SQLite database — registered users</span>
+                                </div>
+                                <i class="fas fa-users text-slate-400 group-hover:text-blue-600"></i>
+                            </a>
+                            <button onclick="confirmClearLogs()" class="w-full flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-red-50 transition group text-red-600">
+                                <span class="text-sm font-bold">Clear All Activity Logs</span>
+                                <i class="fas fa-trash-alt opacity-50"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    
+                    <div class="bg-white p-8 rounded-3xl border border-indigo-100 shadow-sm md:col-span-2">
+                        <h3 class="text-lg font-bold text-slate-800 mb-1 flex items-center">
+                            <i class="fas fa-id-badge mr-3 text-indigo-600"></i> Admin Kiosk Vault Access
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-6">Set the ID that will grant vault control access when scanned at the kiosk. Only one admin ID is active at a time.</p>
+
+                        
+                        <div id="admin-kiosk-qr-wrap" class="hidden mb-6 p-5 bg-indigo-50 border border-indigo-100 rounded-2xl">
+                            <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4">QR Code Preview</p>
+                            <div class="flex flex-col items-center gap-3">
+                                <div id="admin-kiosk-qr-canvas" class="bg-white p-3 rounded-2xl shadow-sm border border-indigo-100 flex-shrink-0"></div>
+                                <p id="admin-kiosk-qr-label" class="text-sm font-bold text-indigo-700 text-center break-all"></p>
+                                <p class="text-xs text-slate-400 text-center">Scan this QR code in Kiosk for vault control</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <input type="text" id="admin-kiosk-id-input" placeholder="Admin ID Number (from their ID card)" class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-indigo-400" oninput="onAdminKioskIDInput(this.value)">
+                            <button onclick="saveAdminKioskID()" class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition whitespace-nowrap text-sm">
+                                <i class="fas fa-save mr-2"></i>Save
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            
+            <div id="section-admin-accounts" class="section-hidden">
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Admin Accounts</h1>
+                <p class="text-sm text-slate-400 mb-8">Manage who has access to this dashboard. Only Super Admins can add or remove accounts.</p>
+
+                
+                <div class="bg-white p-8 rounded-3xl border border-blue-100 shadow-sm mb-6">
+                    <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center">
+                        <i class="fas fa-user-plus mr-3 text-blue-600"></i> Add New Admin
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Display Name</label>
+                            <input type="text" id="new-admin-displayname" placeholder="e.g. Juan Dela Cruz" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-400">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Username <span class="text-red-400">*</span></label>
+                            <input type="text" id="new-admin-username" placeholder="e.g. admin_juan" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-400">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Password <span class="text-red-400">*</span></label>
+                            <input type="password" id="new-admin-password" placeholder="Password" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-400">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Email (for report notifications)</label>
+                            <input type="email" id="new-admin-email" placeholder="e.g. juan@email.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-400">
+                        </div>
+                    </div>
+                    <button onclick="submitAddAdmin()" class="px-8 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition text-sm">
+                        <i class="fas fa-plus mr-2"></i> Add Admin
+                    </button>
+                </div>
+
+                
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="px-8 py-5 border-b border-slate-100">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                            <i class="fas fa-users-cog mr-3 text-slate-500"></i> All Admin Accounts
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-slate-50 text-left">
+                                    <th class="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Display Name</th>
+                                    <th class="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Username</th>
+                                    <th class="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Email</th>
+                                    <th class="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Role</th>
+                                    <th class="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-accounts-tbody">
+                                <tr>
+                                    <td colspan="5" class="px-8 py-8 text-center text-slate-400 text-sm">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    
+    <div id="addModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
+            <h2 class="text-2xl font-black mb-6">User Details</h2>
+            <div class="space-y-4">
+                <input type="text" id="m_id" placeholder="ID Number" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl">
+                <input type="text" id="m_name" placeholder="Full Name" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl">
+                <input type="email" id="m_email" placeholder="Email Address" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl">
+                <select id="m_role" onchange="toggleModalStudentFields()" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl">
+                    <option value="Student">Student</option>
+                    <option value="Faculty">Faculty</option>
+                </select>
+                
+                <div id="m_student_fields" class="space-y-4">
+                    <select id="m_course" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl">
+                        <option value="" disabled selected>Select Course</option>
+                        <option value="BSABE">BSABE – Agricultural and Biosystems Engineering</option>
+                        <option value="BSCpE">BSCpE – Computer Engineering</option>
+                        <option value="BSME">BSME – Mechanical Engineering</option>
+                        <option value="BSIT">BSIT – Industrial Technology</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <select id="m_year" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl">
+                        <option value="" disabled selected>Select Year Level</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                        <option value="5th Year">5th Year</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-8">
+                <button onclick="closeAddModal()" class="flex-1 py-3 font-bold text-slate-500 rounded-2xl">Cancel</button>
+                <button onclick="submitUser()" class="flex-1 py-3 font-bold text-white bg-blue-600 rounded-2xl hover:bg-blue-700">Save</button>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="banModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
+            <h2 class="text-2xl font-black mb-2 text-red-600">Ban User</h2>
+            <p id="ban-user-display" class="text-sm font-bold text-slate-500 mb-6"></p>
+            <input type="hidden" id="ban-id">
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Ban Start</label>
+                    <input type="datetime-local" id="ban_start" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Ban End</label>
+                    <input type="datetime-local" id="ban_end" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl outline-none">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-8">
+                <button onclick="closeBanModal()" class="flex-1 py-3 font-bold text-slate-500 rounded-2xl">Cancel</button>
+                <button onclick="submitBan()" class="flex-1 py-3 font-bold text-white bg-red-600 rounded-2xl hover:bg-red-700">Apply Ban</button>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="reserveModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
+            <h2 class="text-2xl font-black mb-2">Reservation Info</h2>
+            <p id="reserve-date-display" class="text-sm font-bold text-blue-600 mb-6"></p>
+            <input type="hidden" id="edit-res-id">
+            <div class="space-y-4">
+                <div class="relative">
+                    <input type="text" id="r_name" placeholder="Borrower Name" autocomplete="off" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-400" oninput="handleNameInput(this.value)" onblur="setTimeout(closeNameSuggestions, 300)">
+                    <div id="name-suggestions-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 overflow-hidden max-h-52 overflow-y-auto">
+                    </div>
+                </div>
+                <select id="r_equip" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl outline-none"></select>
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Start Time</label>
+                        <input type="time" id="r_start" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl outline-none">
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">End Time</label>
+                        <input type="time" id="r_end" class="w-full px-4 py-3 bg-slate-50 border rounded-2xl outline-none">
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-8">
+                <button onclick="closeReserveModal()" class="flex-1 py-3 font-bold text-slate-500 rounded-2xl">Cancel</button>
+                <button id="modal-delete-btn" onclick="deleteReservationFromModal()" class="hidden py-3 px-5 font-bold text-white bg-red-500 rounded-2xl hover:bg-red-600 transition-colors">
+                    <i class="fas fa-trash"></i>
+                </button>
+                <button onclick="saveReservation()" class="flex-1 py-3 font-bold text-white bg-blue-600 rounded-2xl hover:bg-blue-700">Save</button>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="changePicModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
+            <h2 class="text-2xl font-black mb-1">Change Picture</h2>
+            <p id="changepic-label" class="text-sm font-bold text-blue-600 mb-6"></p>
+
+            
+            <div id="currentPicWrap" class="hidden mb-4">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Current Picture</p>
+                <div class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                    <img id="currentPicImg" src="" alt="Current" class="w-20 h-20 object-cover rounded-xl border border-slate-200">
+                    <div>
+                        <p class="text-xs font-bold text-slate-500">Existing image</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">This will be replaced when you save.</p>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div id="dropZone" class="border-2 border-dashed border-blue-200 rounded-2xl p-6 text-center transition-all hover:border-blue-400 hover:bg-blue-50 cursor-pointer mb-4 hidden-mobile" ondragover="event.preventDefault(); this.classList.add('border-blue-500','bg-blue-50')"
+                ondragleave="this.classList.remove('border-blue-500','bg-blue-50')" ondrop="handleDrop(event)" onclick="document.getElementById('picFileInput').click()">
+                <i class="fas fa-cloud-upload-alt text-3xl text-blue-300 mb-3"></i>
+                <p class="text-sm font-bold text-slate-500">Drag & drop an image here</p>
+                <p class="text-xs text-slate-400 mt-1">or click to choose a file</p>
+                <p class="text-[10px] text-slate-300 mt-2 uppercase tracking-wider">JPG · PNG · WEBP · GIF</p>
+            </div>
+
+            
+            <button onclick="document.getElementById('picFileInput').click()" class="show-mobile w-full py-3 mb-4 bg-blue-50 border border-blue-200 rounded-2xl text-sm font-bold text-blue-600 hover:bg-blue-100 transition">
+                <i class="fas fa-folder-open mr-2"></i> Choose File
+            </button>
+
+            <input type="file" id="picFileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+
+            
+            <div id="picPreviewWrap" class="hidden mb-4">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Preview</p>
+                <div class="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                    <img id="picPreview" src="" alt="Preview" class="w-20 h-20 object-cover rounded-xl border border-slate-200">
+                    <div>
+                        <p id="picFileName" class="text-xs font-bold text-slate-700 break-all"></p>
+                        <p id="picFileSize" class="text-[10px] text-slate-400 mt-0.5"></p>
+                        <button onclick="clearPicPreview()" class="text-[10px] text-red-400 hover:text-red-600 mt-1 font-bold">
+                            <i class="fas fa-times mr-1"></i>Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-2">
+                <button onclick="closeChangePicModal()" class="flex-1 py-3 font-bold text-slate-500 rounded-2xl hover:bg-slate-50">Cancel</button>
+                <button id="confirmChangePicBtn" onclick="confirmChangePicture()" disabled class="flex-1 py-3 font-bold text-white bg-blue-600 rounded-2xl hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                    Save Picture
+                </button>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="reportDetailModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-black text-slate-800" id="rdm-title">Report Details</h2>
+                <button onclick="closeReportModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 text-sm font-bold transition">✕</button>
+            </div>
+            <div class="space-y-4" id="rdm-body"></div>
+            <button onclick="dismissReportFromModal()" id="rdm-dismiss-btn" class="mt-8 w-full py-3 font-bold text-white bg-red-500 rounded-2xl hover:bg-red-600 transition">
+                <i class="fas fa-xmark mr-2"></i>Dismiss Report
+            </button>
+        </div>
+    </div>
+
+    
+    <div id="adminProfileModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-black text-slate-800">Admin Profile</h2>
+                <button onclick="closeAdminProfileModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 text-sm transition">&#x2715;</button>
+            </div>
+
+            
+            <div class="flex flex-col items-center mb-6">
+                <div class="relative group cursor-pointer" onclick="document.getElementById('adminPicInput').click()">
+                    <img id="modal-admin-pic" src="/static/admin_default.png" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCI+PGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiMyNTYzZWIiLz48dGV4dCB4PSI1MCUiIHk9IjU1JSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMzIiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj7wn5GkPC90ZXh0Pjwvc3ZnPg=='"
+                        class="w-24 h-24 rounded-full object-cover border-4 border-blue-100 shadow-md transition group-hover:brightness-75">
+                    <div class="absolute inset-0 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/30 rounded-full">
+                        <i class="fas fa-camera text-white text-xl drop-shadow"></i>
+                    </div>
+                </div>
+                <input type="file" id="adminPicInput" accept="image/*" class="hidden" onchange="previewAdminPic(event)">
+                <p class="text-xs text-slate-400 mt-2">Click the photo to change picture</p>
+            </div>
+
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Display Name</label>
+                    <input type="text" id="admin-profile-name" placeholder="Admin Name" class="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Email Address</label>
+                    <p class="text-[10px] text-blue-500 mb-1">Used for password reset &amp; report notifications</p>
+                    <input type="email" id="admin-profile-email" placeholder="admin@example.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-8">
+                <button onclick="closeAdminProfileModal()" class="flex-1 py-3 font-bold text-slate-500 rounded-2xl hover:bg-slate-50 transition">Cancel</button>
+                <button onclick="saveAdminProfile()" class="flex-1 py-3 font-bold text-white bg-blue-600 rounded-2xl hover:bg-blue-700 transition">
+                    <i class="fas fa-save mr-2"></i>Save Profile
+                </button>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="clearLogsModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl">
+            <div class="flex flex-col items-center text-center mb-6">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-trash-alt text-2xl text-red-500"></i>
+                </div>
+                <h2 class="text-xl font-black text-slate-800 mb-2">Clear All Activity Logs?</h2>
+                <p class="text-sm text-slate-500">This will permanently delete all transaction records. This action <span class="font-bold text-red-600">cannot be undone</span>.</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeClearLogsModal()" class="flex-1 py-3 font-bold text-slate-500 rounded-2xl hover:bg-slate-50 transition">Cancel</button>
+                <button onclick="clearAllLogs()" class="flex-1 py-3 font-bold text-white bg-red-600 rounded-2xl hover:bg-red-700 transition">
+                    <i class="fas fa-trash-alt mr-2"></i>Yes, Clear All
+                </button>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="equipQRModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-xs shadow-2xl flex flex-col items-center">
+            <div class="flex items-center justify-between w-full mb-5">
+                <h2 class="text-xl font-black text-slate-800">Equipment QR</h2>
+                <button onclick="closeEquipQRModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 text-sm font-bold transition">✕</button>
+            </div>
+            <p id="equip-qr-name" class="text-sm font-bold text-blue-600 mb-5 text-center"></p>
+            <div id="equip-qr-canvas" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 mb-5"></div>
+            <p class="text-xs text-slate-400 text-center">Scan this QR code at the kiosk to identify this equipment.</p>
+        </div>
+    </div>
+
+    
+    <div id="renameItemModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-xl font-black text-slate-800">Rename Item</h2>
+                <button onclick="closeRenameItemModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 text-sm transition">✕</button>
+            </div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Internal Key (read-only)</p>
+            <p id="renameItem-key" class="text-sm font-mono text-blue-600 bg-blue-50 px-3 py-2 rounded-xl mb-5"></p>
+            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">New Display Name</label>
+            <input type="text" id="renameItem-input" placeholder="e.g. Calculator Alpha" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-400 mb-6" onkeydown="if(event.key==='Enter') submitRenameItem()">
+            <div class="flex gap-3">
+                <button onclick="closeRenameItemModal()" class="flex-1 py-3 font-bold text-slate-500 rounded-2xl hover:bg-slate-50 transition">Cancel</button>
+                <button onclick="submitRenameItem()" class="flex-1 py-3 font-bold text-white bg-blue-600 rounded-2xl hover:bg-blue-700 transition">
+                    <i class="fas fa-pen mr-2"></i>Rename
+                </button>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="renameCatModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-xl font-black text-slate-800">Edit Category</h2>
+                <button onclick="closeRenameCatModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 text-sm transition">✕</button>
+            </div>
+            <input type="hidden" id="renameCat-key">
+
+            
+            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Category Display Name</label>
+            <input type="text" id="renameCat-input" placeholder="e.g. Scientific Calculator" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-400 mb-5">
+
+            
+            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Category Icon (Borrow Page)</label>
+            <div class="flex items-center gap-4 mb-2">
+                <img id="renameCat-img-preview" src="" alt="Current icon" class="w-16 h-16 object-contain rounded-xl border border-slate-200 bg-slate-50">
+                <div class="flex-1">
+                    <button onclick="document.getElementById('renameCat-file').click()" class="w-full py-2.5 bg-blue-50 border border-blue-200 rounded-2xl text-sm font-bold text-blue-600 hover:bg-blue-100 transition">
+                        <i class="fas fa-folder-open mr-2"></i>Choose New Icon
+                    </button>
+                    <p id="renameCat-file-name" class="text-[10px] text-slate-400 mt-1 text-center">No new file selected</p>
+                </div>
+            </div>
+            <input type="file" id="renameCat-file" accept="image/*" class="hidden" onchange="previewCatIcon(event)">
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeRenameCatModal()" class="flex-1 py-3 font-bold text-slate-500 rounded-2xl hover:bg-slate-50 transition">Cancel</button>
+                <button onclick="submitRenameCategory()" class="flex-1 py-3 font-bold text-white bg-blue-600 rounded-2xl hover:bg-blue-700 transition">
+                    <i class="fas fa-save mr-2"></i>Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/admin_index.js"></script>
+</body>
+
+</html>

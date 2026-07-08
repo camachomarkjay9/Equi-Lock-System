@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EquiLock Sign Up</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #e6f0ff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 90%;
+    max-width: 450px;
+  }
+  h2 {
+    text-align: center;
+    color: #1b4dd8; /* title blue */
+    margin-bottom: 20px;
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  input, select {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+  }
+  button {
+    background-color: #1b4dd8;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #163fad;
+  }
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+  .privacy-link {
+    color: #1b4dd8;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  /* Modal styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+  }
+  .modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    line-height: 1.5;
+    color: #444;
+  }
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .close:hover {
+    color: #000;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Sign Up</h2>
+
+  <form id="signupForm" action="/submit" method="POST">
+    <input type="text" name="fullname" placeholder="Full Name" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="text" name="idnumber" placeholder="ID Number (####-####)" required>
+
+    <select name="role" id="roleSelect" onchange="toggleStudentFields()" required>
+      <option value="" disabled selected>Select Role</option>
+      <option value="Student">Student</option>
+      <option value="Faculty">Faculty</option>
+    </select>
+
+    <!-- Student-only fields -->
+    <div id="studentFields" style="display:none;">
+      <select name="course" id="courseSelect" style="margin-bottom:15px;padding:10px;border-radius:8px;border:1px solid #ccc;font-size:15px;width:100%;">
+        <option value="" disabled selected>Select Course</option>
+        <option value="BSABE">BSABE – Agricultural and Biosystems Engineering</option>
+        <option value="BSCpE">BSCpE – Computer Engineering</option>
+        <option value="BSIT">BSIT – Industrial Technology</option>
+        <option value="BSME">BSME – Mechanical Engineering</option>
+        <option value="Other">Other Departments</option>
+      </select>
+      <select name="year_level" id="yearSelect" style="margin-bottom:15px;padding:10px;border-radius:8px;border:1px solid #ccc;font-size:15px;width:100%;">
+        <option value="" disabled selected>Select Year Level</option>
+        <option value="1st Year">1st Year</option>
+        <option value="2nd Year">2nd Year</option>
+        <option value="3rd Year">3rd Year</option>
+        <option value="4th Year">4th Year</option>
+        <option value="5th Year">5th Year</option>
+        <option value="5th Year">6th Year</option>
+      </select>
+    </div>
+
+    <div class="checkbox-group">
+      <input type="checkbox" id="agree" name="agree" value="yes" required>
+      <label for="agree">
+        I have read and agree to the 
+        <span class="privacy-link" id="openModal">Data Privacy and Security</span> terms.
+      </label>
+    </div>
+
+    <button type="submit">Sign Up</button>
+  </form>
+</div>
+
+<!-- Modal -->
+<div id="privacyModal" class="modal">
+  <div class="modal-content">
+    <span class="close" id="closeModal">&times;</span>
+    <h3 style="color:#1b4dd8; text-align:center;">Data Privacy and Security</h3>
+    <div style="max-height: 60vh; overflow-y: auto; padding-right: 5px;">
+      <p>
+        By signing up, you acknowledge and agree that the information you provide—including your <strong>full name, email address, ID number, and a short video recording</strong>—will be collected and securely stored for security and verification purposes only.<br><br>
+        1. Your data will not be shared, sold, or distributed to any third party under any circumstances.<br>
+        2. All information is handled with strict confidentiality and stored using secure methods to protect against unauthorized access.<br>
+        3. The short video clip is used solely to ensure the authenticity of the sign-up process, prevent unauthorized access, and verify borrowed and returned equipment.<br>
+        4. You have the right to request access, correction, or deletion of your personal data in accordance with applicable data protection regulations.<br><br>
+        By proceeding, you consent to the collection and secure use of your personal data as described above.
+      </p>
+    </div></div>
+
+<script>
+  // Modal functionality
+  const modal = document.getElementById('privacyModal');
+  const openModal = document.getElementById('openModal');
+  const closeModal = document.getElementById('closeModal');
+
+  openModal.onclick = () => { modal.style.display = 'block'; }
+  closeModal.onclick = () => { modal.style.display = 'none'; }
+  window.onclick = (e) => { if (e.target == modal) modal.style.display = 'none'; }
+
+  // Show/hide Student fields based on role selection
+  function toggleStudentFields() {
+    const role = document.getElementById('roleSelect').value;
+    const fields = document.getElementById('studentFields');
+    const courseSelect = document.getElementById('courseSelect');
+    const yearSelect = document.getElementById('yearSelect');
+
+    if (role === 'Student') {
+      fields.style.display = 'block';
+      courseSelect.required = true;
+      yearSelect.required = true;
+    } else {
+      fields.style.display = 'none';
+      courseSelect.required = false;
+      yearSelect.required = false;
+      courseSelect.value = '';
+      yearSelect.value = '';
+    }
+  }
+</script>
+
+</body>
+</html>
